@@ -1,6 +1,6 @@
-Answers to the exercises given in Day #1 
+--Answers to the exercises given in Day #1 
 
-1)
+-- Question #1
 SELECT e.title, c.country_name
 FROM   events e
 JOIN   venues v
@@ -9,5 +9,5 @@ JOIN   countries c
 ON     v.country_code = c.country_code
 WHERE  e.title = 'LARP Club';
 
-2)
+-- Question #2
 ALTER TABLE venues ADD COLUMN active BOOLEAN DEFAULT TRUE;
