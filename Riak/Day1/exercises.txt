@@ -1,0 +1,27 @@
+#---------------------
+# Question #1
+curl -X PUT http://localhost:10018/riak/animals/polly \
+  -H "Content-Type: application/json" \
+  -H "Link:</riak/photos/polly.jpg>; riaktag=\"photo\""
+
+#---------------------
+# Question #2
+
+# Post the new data
+curl -X POST http://localhost:10018/riak/games/ \
+  -H "Content-Type: application/pdf" \
+  --data-binary @TS_Rules_Deluxe.pdf
+
+# Find the key for the new data
+curl http://localhost:10018/riak/games?keys=true
+  {"props":{"name":"games","allow_mult":false,"basic_quorum":false,"big_vclock":50,"chash_keyfun":{"mod":"riak_core_util","fun":"chash_std_keyfun"},"dvv_enabled":false,"dw":"quorum","last_write_wins":false,"linkfun":{"mod":"riak_kv_wm_link_walker","fun":"mapreduce_linkfun"},"n_val":3,"notfound_ok":true,"old_vclock":86400,"postcommit":[],"pr":0,"precommit":[],"pw":0,"r":"quorum","rw":"quorum","small_vclock":50,"w":"quorum","young_vclock":20},"keys":["Dgc8TO07TWSRQXtTYJ4ytW3ggzF","twilightstruggle","7zC5sNC4Wa2XhZDua5egyajEQxr","9CKqS9UQX6AJqKSoNV1isznTHpu","VjgKMLhK8C92V7a7n9DpX1faT1Y"]}
+
+# Open the data in a browser
+http://localhost:10018/riak/games/Dgc8TO07TWSRQXtTYJ4ytW3ggzF
+
+#---------------------
+# Question #3
+curl -X PUT http://localhost:10018/riak/medicines/antibiotics \
+  -H "Content-Type: image/jpeg" \ 
+  -H "Link: </riak/animals/ace>; riaktag=\"treatment\"" \
+  --data-binary @antibiotics.jpg
