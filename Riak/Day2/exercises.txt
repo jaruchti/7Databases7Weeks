@@ -1,0 +1,41 @@
+#---------------------
+# Question #1 & 2
+# Return a count of the capacities of floor 42 and 43 in the 'Hotel' created as part 
+# of Day 2. 
+curl -X POST -H "content-type:application/json" \
+http://localhost:10018/mapred --data @-
+{
+  "inputs":{
+    "bucket":"rooms",
+    "key_filters":[["string_to_int"], ["between", 4200, 4399]]
+  },
+  "query":[
+    {"map":{
+      "language":"javascript",
+      "source":
+        "function(v) {
+          var floorCapacityPair = {};
+          var parsedData = JSON.parse(v.values[0].data);
+          var floor = Math.floor( parseInt(v.key) / 100 );
+
+          floorCapacityPair[floor] = parsedData.capacity;
+          return [floorCapacityPair];
+        }"
+    }},
+    {"reduce":{
+      "language":"javascript",
+      "source":
+        "function(v) {
+          var capacityByFloor = {};
+          for (var i in v) {
+            for (var floor in v[i]){
+              if ( capacityByFloor[floor] ) capacityByFloor[floor] += v[i][floor];
+              else                          capacityByFloor[floor]  = v[i][floor];
+            }
+          }
+          return [capacityByFloor];
+        }"
+    }}
+  ]
+}
+
