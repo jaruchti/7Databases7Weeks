@@ -1,0 +1,19 @@
+1) Implement a finalize method to output the count as the total.
+finalize = function(key, value){
+  return { total : value.count }; // simply rename the count variable to total
+}
+
+db.runCommand({
+  mapReduce: 'phones'
+  map: map
+  reduce: reduce,
+  finalize: finalize,
+  out: 'phones.report'
+});
+
+2) Install a Mongo driver for a language of your choice, and connect to the database. 
+Populate a collection through it, and index one of the fields.
+
+I didn't see much value added with this exercises, so I decided to move on to Day #3.
+My goal is to learn more about database technologies, not how to interface with them
+through a programming languages.
