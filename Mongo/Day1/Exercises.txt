@@ -1,0 +1,32 @@
+-- Answers to Day #1 Exercises
+
+1) Print a JSON document containg { "hello" : "world" }
+
+tojson({ "hello": "world" }
+
+2) Select a town via a case insensitive regular expression containing the word new.
+
+db.towns.find( { name : /new/i } )
+
+3) Find all cities whose names contain an e and are famous for food or beer.
+
+db.towns.find( { name : /.*e.*/, famous_for : { $in : ['food', 'beer'] } } )
+
+4) Create a new database named blogger with a collection named articles--
+insert a new article with an author name and email, creation date, and text.
+
+articles.insert({   
+  author: 'Jason Ruchti',   
+  email: 'myemail@gmail.com',   
+  creation: new Date(),   
+  text: 'The quick brown fox jumps over the lazy dogs.' 
+})
+
+5) Update the article with an array of comments, containing a comment with an author and text.
+ db.articles.update(
+   { _id : ObjectId("5470bb712e8a661ff2abccd9") },
+   { $set : { comments : [{ author: 'Joe Smoe', text: 'Great Article' },
+                          { author : 'Jane Smith', text : 'Awesome!'}] 
+            } 
+   } 
+)
