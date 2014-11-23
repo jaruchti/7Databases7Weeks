@@ -1,0 +1,8 @@
+1) Read the full replica set configuration options in the online docs.
+Documentation can be found here: http://docs.mongodb.org/manual/replication/ 
+
+2) Find out how to create a spherical geo index.
+Documentation can be found here: http://docs.mongodb.org/manual/applications/geospatial-indexes/
+ 
+3) Mongo has support for bounding shapes (namely, squares and circles).  Find all cities within a 50-mile box around the center of London.
+db.cities.find( location : { "$within": { "$box" : [ [50.775, -0.725], [52.225, 1.275] ] } } )
