@@ -1,0 +1,24 @@
+1) Find the CoucheDB HTTP Document API documentation online.
+http://docs.couchdb.org/en/1.6.1/intro/api.html
+
+2) We've already used GET, POST, PUT, and DELETE.  What other HTTP commands are supported?
+CouchDB supports GET, HEAD, POST, PUT, DELETE, and COPY.
+
+3) Use cURL to PUT a new document into the music database with a specific _id of your choice.
+curl -i -X PUT http://localhost:5984/music/foo_fighters \
+-H "Content-Type: application/json" --data @-
+{
+      "name": "Foo Fighters",
+      "albums": [
+              { "title": "The Colour and the Shape", "year": 1997 },
+              { "title": "In Your Honor", "year": 2005 }
+      ]
+}
+4) Use curl to create a new database with a name of your choice, and then delete that database also via cURL.
+curl -X PUT http://localhost:5984/newDB
+curl -X DELETE http://localhost:5984/newDB
+
+5) Again using cURL, add a text document as an attachment.  Lastly, craft and execute a cURL request that will return just that document's attachment.
+curl -X PUT "http://localhost:5984/music/63123da1b566400da1d9079500000e07/attachment.txt?rev=3-d919432240ae1f654f058a0be5fc2efe" --data-binary @attachment.txt -H "Content-type: text/plain"
+
+curl http://localhost:5984/music/63123da1b566400da1d9079500000e07?attachments=true
