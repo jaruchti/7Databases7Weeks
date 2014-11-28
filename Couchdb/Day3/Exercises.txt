@@ -1,0 +1,91 @@
+1) What native reducers are available in CouchDB? What are the benefits of using native reducers over custom JavaScript reducers?
+
+CouchDB has three build-in reduce functions (_sum, _count, and _stats).  These are implemented in Erlang and run inside CouchDB, so they are much faster than the equivalent JavaScript functions.
+
+2) How can you filter the changes coming out of the _changes API on the server side?
+
+Filters are described in detail here: http://guide.couchdb.org/draft/notifications.html#filters.  To perform server side filtering, one would save a JavaScript function under the special member 'filters' with the name of your choice.  To query the changes API with this filter, use the filter=designdocname/filtername query parameter. (e.g. curl "$HOST/db/_changes?filter=designdoc/filtername
+
+3) Like everything in CouchDB, the tasks of initializing and canceling replication are controlled by HTTP commands under the hood.  What are the REST commands to set up and remove replication relationships between servers?
+
+Replication is described in detail in the CouchDB Guide (http://guide.couchdb.org/draft/replication.html).  The "source" and "target" databases are given as parameters to the _replicate URL.
+
+4) How can you use the _replicator database to persist replication relationships?
+
+The _replicator database is describe in detail here (https://couchdb.readthedocs.org/en/1.4.x/replicator.html#replicator).  It is a new feature in CouchDB 1.1.0 as an alternative to the _replicate interface.  It manages replication jobs, and will persist upon database restart.
+
+5) Create a new module with watch_changes_continuous.js based on the skeletal Node.js module described in the section"Polling for Changes with Node.js"
+
+watcher.start = function() {
+  var http_options = {
+    host: watcher.host,
+    port: watcher.port,
+    path: '/' + watcher.db + '/_changes' + 
+          '?feed=continous&include_docs=true&since=' + watcher.last_seq
+  };
+
+  var parseDataLine = function(line) {
+    // Parse a single line into a JSON object
+    // and emit the change.
+    var output = JSON.parse(line);
+    if (output.results) {
+      watcher.last_seq = output.last_seq;
+      output.results.forEach(function(change){
+        watcher.emit('change', change);
+      });
+      watcher.start();
+    } else {
+      watcher.emit('error', output);
+    }
+  }
+
+  // Parses each line in the buffer into JSON, returning any lines in the buffer that have not
+  // been completely retrieved. 
+  var splitBufferIntoLines = function(buffer)
+  {
+    // Find the position in the buffer of the last newline character.
+    var indexOfLastCompleteLine = buffer.lastIndexOf("\n");
+
+    if ( indexOfLastCompleteLine != -1 ){
+      // Split the buffer into an array with each complete line
+      // of JSON data.
+      var lines = buffer.substr(0, indexOfLastCompleteLine).split("\n");
+
+      // Parse each complete line in the buffer into JSON objects.
+      lines.forEach( parseDataLine );
+
+      // Move the buffer to the remaining characters after the final
+      // newline.
+      buffer = buffer.substr( pos + 1);
+    }
+
+    // Return characters remaining in the buffer.
+    return buffer;
+  }
+
+  http.get(http_options, function(res) {
+    var buffer = '';
+    res.on('data', function(chunk) {
+      buffer += chunk;
+      buffer = splitBufferIntoLines( buffer );
+    });
+    res.on('end', function() {
+      buffer = splitBufferIntoLines( buffer );
+    })
+  })
+  .on('error', function(err) {
+    watcher.emit('error', err);
+  });
+
+  return watcher;
+};
+
+6) Documents with conflicting revisions revisions have a _conflicts property. Create a view that emits conflicting revisions and maps them to the doc _id.
+
+function(doc){
+  if ( '_conflicts' in doc ){
+    doc._conflicts.forEach( function(rev) {
+      emit(rev, doc._id);
+    });
+  }
+}
