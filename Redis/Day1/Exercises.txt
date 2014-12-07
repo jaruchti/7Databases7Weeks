@@ -1,0 +1,7 @@
+1) Find the complete Redis commands documentation, as well as the Big-O notated (O(n)) time complexity under the command details.
+
+The complete listing of all Redis commands can be found at: http://redis.io/commands.  
+
+2) Install your favorite programming language driver and connect to the Redis server.  Insert and increment a value within a transaction.
+
+3) Using your driver of choice, create a program that reads a blocking list and outputs somewhere (console, file, Socket.io, and so on) and another that writes to the same list.
