@@ -4,4 +4,8 @@ The complete listing of all Redis commands can be found at: http://redis.io/comm
 
 2) Install your favorite programming language driver and connect to the Redis server.  Insert and increment a value within a transaction.
 
+See incrValue.rb
+
 3) Using your driver of choice, create a program that reads a blocking list and outputs somewhere (console, file, Socket.io, and so on) and another that writes to the same list.
+
+See readQueue/writeQueue.rb
