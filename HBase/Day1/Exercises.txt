@@ -1,0 +1,27 @@
+1) Figure out how to use the shell to do the following:
+  * Delete individual column values in a row
+  delete 'table' 'row' 'column:value'
+  * Delete an entire row
+  deleteall 'table' 'row'
+
+2) Bookmark the HBase API documentation for the version of HBase you're using.
+
+The HBase API can be found here: https://hbase.apache.org/apidocs/
+
+3) Create a function called put_many that creates a Put instance, adds any number of column-value pairs to it, and commits it to a table.  The signature should look like this:
+def put_many( table_name, row, column_values )
+  # your code here
+end
+
+def put_many( table_name, row, column_values )
+  table = HTable.new( @hbase.configuration, table_name )
+  p = Put.new( *jbytes( row ) ) # Utilizes the jbytes example function from Day #1
+
+  column_values.each do | key, value |
+    (colFamily, colName) = key.split(':')
+    colName = "" if colName.nil?
+    p.add( *jbytes( colFamily, colName, value )
+  end
+
+  table.put( p );
+end
