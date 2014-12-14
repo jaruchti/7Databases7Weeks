@@ -1,0 +1,76 @@
+1) Find a discussion or article describing the pros and cons of compression in HBase.
+
+Compression options are described in the HBase documention: http://hbase.apache.org/book/compression.html.  In general, compression will save disk space while increasing CPU usage.  This is a classic time vs. space tradeoff.
+
+2) Find an article explaining how Bloom filters work in general and how they benefit HBase.
+
+Bloom filters are explained in detail at wikipedia: http://en.wikipedia.org/wiki/Bloom_filter.  Bloom filters are used to reduce disk lookups for non-existant rows or columns in HBase.
+
+3) Aside from which algorithm to use, what other column family options relate to compression?
+
+Data Block encoding options include Prefix, Diff, Fast Diff, and Prefix, as described in the documentation: http://hbase.apache.org/book/compression.html.
+
+Prefix - Often, keys are very similar.  Specifically, keys often share a common prefix and only differ near the end.  For instance, one key might be RowKey:Family:Qualifier0 and the next key might be RowKey:Family:Qualifier1.  In Prefix encoding, an extra column is added which holds the length of the prefix shared between the current key and the previous key.  Assuming the first key here is totally different from the key before, its prefix length is 0.  The second key's prefix length is 23, since they have the first 23 characters in common.
+
+Diff - Diff encoding expands upon Prefix encoding.  Instead of considering the key sequentially as a monolithic series of bytes, each key field is split so that each part of the key can be compressed more efficiently.  Two new fields are added: timestamp and type.  If the ColumnFamily is the same as the previous row, it is omitted from the current row.  If the key length, value length, or type are the same as the previous row, the field is omittted.  In addition, for increased compression, the timestamp is stored as a Diff from the previous row's timestamp, rather than being stored in full.  Given the two row keys in the Prefix example, and given an exact match on timestamp and the same type, neither the value length, or type needs to be stored for the second row, and the timestamp value for the second row is just 0, rather than a full timestamp.
+
+Fast Diff - Fast Diff works similar to Diff, but uses a faster implementation.  It also adds another field which stores a single bit to track whether the data itself is the same as the previous row.  If it is, the data is not stored again.
+
+Prefix Tree - Prefix Tree encoding was introduced as an experimental feature in HBase 0.96.  It provides similar memory savings to the Prefix, Diff, and Fast Diff encoder, but provides faster random access at a cost of slower encoding speed.  
+
+4) How does the type of data and expected usage patterns inform column family compression options?
+
+A full discussion can be found at http://search-hadoop.com/m/lL12B1PFVhp1.  I have listed the general principles below:
+
+* If you have long keys (compared to the values) or many columns, use a prefix encoder.
+* If the values are large (and not precompressed, such as images), use a data block compression.
+* Use GZIP for cold data, which is accessed infrequently.  GZIP compression uses more CPU resources than Snappy or LZO, but provides a higher compression ratio.
+* Use Snappy or LZO for hot data, which is accessed frequently.  Snappy and LZO use fewer CPU resources than GZIP, but do not provide as high of compression ratio.
+* In most cases, enabling Snappy or LZO by default is a good choice, because they have a low performance overhead and provide space savings.
+* Snappy has similar qualities as LZO but has been shown to perform beter.
+
+5) Expanding on the idea of data import, let's build a database containing nutrition facts.  Download the MyPyramid Raw Food Data set from Data.gov.  Extract the zipped contents to find Food_Display_Table.xml.
+
+This data consists of many pairs of <Food_Display_Row> tags.  Inside these, each row has a <Food_Code> (integer value), <Display_Name> (string), and other facts about the food in appropriately named tags.
+
+5a) Create a new table called foods with a single column family to store the facts.  What should you use for the row key?  
+
+hbase(main):001:0> create 'foods', 'facts'
+
+I will use the food name as the row key.  Although a 'Food_Code' integer could be utilized, querying by name is more intuitive.
+
+5b) Create a new JRuby script for importing the food data.  Use the SAX parsing style we used earlier for the Wikipedia import script and tailor it for the food data.
+
+See import_food_db.rb script.
+
+5c) Pipe the food data into your import script on the command line to populate the table.
+
+> cat Food_Display_Table.xml | $HBASE_DIR/bin/hbase shell import_food_db.rb
+
+5d) Finally, using the HBase shell query the foods table for information about your favorite foods.
+hbase(main):001:0> get 'foods', 'Banana'
+ facts:Added_Sugars            timestamp=1418596124220, value=.00000
+ facts:Alcohol                 timestamp=1418596124220, value=.00000 
+ facts:Calories                timestamp=1418596124220, value=121.04000
+ facts:Drkgreen_Vegetables     timestamp=1418596124220, value=.00000
+ facts:Drybeans_Peas           timestamp=1418596124220, value=.00000
+ facts:Factor                  timestamp=1418596124220, value=1.00000
+ facts:Fruits                  timestamp=1418596124220, value=.99960
+ facts:Grains                  timestamp=1418596124220, value=.00000
+ facts:Increment               timestamp=1418596124220, value=.50000
+ facts:Meats                   timestamp=1418596124220, value=.00000 
+ facts:Milk                    timestamp=1418596124220, value=.00000 
+ facts:Multiplier              timestamp=1418596124220, value=.50000 
+ facts:Oils                    timestamp=1418596124220, value=.00000
+ facts:Orange_Vegetables       timestamp=1418596124220, value=.00000
+ facts:Other_Vegetables        timestamp=1418596124220, value=.00000
+ facts:Portion_Amount          timestamp=1418596124220, value=1.00000
+ facts:Portion_Default         timestamp=1418596124220, value=2.00000
+ facts:Portion_Display_Name    timestamp=1418596124220, value=large (8 - 9" long)
+ facts:Saturated_Fats          timestamp=1418596124220, value=.14960
+ facts:Solid_Fats              timestamp=1418596124220, value=.00000
+ facts:Soy                     timestamp=1418596124220, value=.00000
+ facts:Starchy_vegetables      timestamp=1418596124220, value=.00000
+ facts:Vegetables              timestamp=1418596124220, value=.00000
+ facts:Whole_Grains            timestamp=1418596124220, value=.00000
+26 row(s) in 0.1410 seconds
