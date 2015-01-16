@@ -1,0 +1,40 @@
+1) Find the Neo4j wiki.
+
+Documentation can be found at neo4j.com/docs/
+
+2) Bookmark the Gremlin steps from the wiki or API.
+
+The Gremlin wiki can be found at https://github.com/tinkerpop/gremlin/wiki
+Steps can be found at https://github.com/tinkerpop/gremlin/wiki/Gremlin-Steps
+
+3) Find two other Neo4j shells (such as the Cypther shell in the admin console).
+
+Cypher and the ReSP api can be used directly from the console.
+
+4) Query all node names with another shell (such as the Cypher query language).
+
+start n = node(*)
+return n.name;
+
+5) Delete all the nodes and edges in your database.
+
+The easiest way to do this is to remove the graph.db file in the $NEO4J_HOME/data/ directory.
+
+6) Create a new graph that represents your family.
+
+CREATE (jason : { name : "Jason" })
+CREATE (justin : { name : "Justin" })
+CREATE (alan : { name : "Alan" })
+CREATE (dianne : { name : "Dianne" })
+CREATE (jason)-[:brother]->(justin)
+CREATE (jason)-[:father]->(alan)
+CREATE (jason)-[:mother]->(dianne)
+CREATE (justin)-[:brother]->(jason)
+CREATE (justin)-[:father]->(alan)
+CREATE (justin)-[:mother]->(dianne)
+CREATE (alan)->[:son]->(justin)
+CREATE (alan)->[:son]->(jason)
+CREATE (alan)->[:wife]->(dianne)
+CREATE (dianne)->[:son]->(justin)
+CREATE (dianne)->[:son]->(jason)
+CREATE (dianne)->[:husband]->(alan)
