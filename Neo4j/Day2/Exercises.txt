@@ -1,0 +1,32 @@
+1) Bookmark the documentation for the Neo4J REST API.
+
+The Neo4J REST API can be found at neo4j.com/docs/stable/rest-api.html
+
+2) Bookmark the API for the JUNG project and the algorithms it implements.
+
+The API can be found at jung.sourceforge.net/doc/api/index.html
+
+3) Find a binding or REST interface for your favority programming language.
+
+The Neo4J ruby gem (neo4jrb.io) is a Ruby Object-Graph-Mapper (OGM).
+
+4) Turn the path-finding portion of the Kevin Bacon algorithm into its own step. 
+
+Gremlin.defineStep( 'path_to', 
+                    [Vertex, Pipe], 
+                    {Vertex to, Integer max -> _().costars.loop(1){ 
+                      it.loops < max & !it.equals(to)
+                    }{true}.filter{
+                      it.equals(to)
+                    }}
+                  )
+
+5) Implement a general purpose Groovy function, (for example, def actor_path(g, name1, name2){...}) that accepts the graph and two names and computes the distance.
+
+def actor_path(Graph g, String actor1, String actor2) {
+  from = g.V.filter{ it.name == actor1 }.next() // Get the vertex we are originating from
+  to = g.V.filter{ it.name == actor2 }.next()   // Get the vertex we are ending at
+  maxDepth = 4                                  // Set the maximum path length
+  
+  from.path_to.(to, maxDepth)).paths().next().size() // The first path returned will be the shortest
+}
