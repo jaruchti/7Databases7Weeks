@@ -1,0 +1,11 @@
+1) Find the Neo4j licensing guide.
+
+It appears the licensing guide has been removed in favor of a more general overview of Neo4j's services.The overview can be found at: neo4j.com/subscriptions.
+
+2) Answer the question, "What is the maximum number of nodes supported?" (Hint: it's in Questions & Answers in the website docs.)
+
+The maximum number of nodes is 2^32 ( approx. 34 billion) per neo4j.com/docs/stable/capabilities-capacity.html
+
+3) Replicate Neo4j across three physical servers.
+
+While it was interesting to read about and setup a High Availablility Neo4j cluster locally, unfortunately, I do not have access to three physical servers.  Moreover, I am more interested in learning about graph database data storage/querying than performing enterprise administration tasks, so I will be skipping this for now.
